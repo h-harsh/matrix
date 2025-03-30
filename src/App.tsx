@@ -1,51 +1,63 @@
-// import { useState } from 'react'
 import { useCallback, useMemo, useState } from 'react'
 import './App.css'
 import GridComponent from './GridComponent'
+import { Grid } from './types'
 
 function App() {
-  const [gridInput, setGridInput] = useState(0)
-  const [grid, setGrid] = useState([
-    [1,2,3],
-    [1,2,3],
-    [1,2,3],
-  ])
+  const [gridSize, setGridSize] = useState<number>(0)
+  const [grid, setGrid] = useState<Grid>([])
 
-  const handleSetGrid = useCallback((input) => {
-    setGrid(input)
+  const handleSetGrid = useCallback((newGrid: Grid) => {
+    setGrid(newGrid)
   }, [])
 
   const gridMemoed = useMemo(() => grid, [grid])
 
-  const handleChangeGridInput = (e) => {
-    setGridInput(e.target.value)
-  }
-
-  const handleCreateMatrix = () => {
-    const newArr = []
-    let temp = []
-
-    for(let i=0; i<gridInput; i++){
-      for(let x=0; x<gridInput; x++){
-        temp.push(Math.floor(Math.random() * x+i))
-      }
-      newArr.push(temp)
-      temp = []
+  const handleChangeGridInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value)
+    if (!isNaN(value) && value > 0) {
+      setGridSize(value)
     }
-    setGrid(newArr)
   }
 
+  const createRandomNumber = (max: number): number => {
+    return Math.floor(Math.random() * max) + 1
+  }
 
+  const handleCreateMatrix = useCallback(() => {
+    if (gridSize <= 0) return
 
+    const newGrid = Array.from({ length: gridSize }, () =>
+      Array.from({ length: gridSize }, () => createRandomNumber(gridSize))
+    )
+    setGrid(newGrid)
+  }, [gridSize])
 
   return (
-    <>
-    <input value={gridInput} onChange={handleChangeGridInput} />
-    <button onClick={handleCreateMatrix} >Create Matrix</button>
+    <div className="app-container">
+      <div className="controls">
+        <input 
+          type="number" 
+          min="1"
+          value={gridSize} 
+          onChange={handleChangeGridInput}
+          placeholder="Enter grid size"
+        />
+        <button 
+          onClick={handleCreateMatrix}
+          disabled={gridSize <= 0}
+        >
+          Create Matrix
+        </button>
+      </div>
 
-    <GridComponent grid={gridMemoed} handleSetGrid={handleSetGrid} />
-
-    </>
+      {grid.length > 0 && (
+        <GridComponent 
+          grid={gridMemoed} 
+          onGridUpdate={handleSetGrid} 
+        />
+      )}
+    </div>
   )
 }
 

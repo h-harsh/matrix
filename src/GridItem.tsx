@@ -1,17 +1,26 @@
 import { memo } from "react"
+import { GridItemProps } from "./types"
 
 const GridItem = memo(({
-    index,
-    index2,
-    item2,
-    handleDeleteItem
-}) => {
-
-    console.log("GridItem render",index, index2)
-
-  return (
-   <p onClick={() => handleDeleteItem(index, index2)} className='cell'>{item2}</p>
-  )
+    rowIndex,
+    colIndex,
+    value,
+    onDelete
+}: GridItemProps) => {
+    return (
+        <div 
+            className="grid-cell"
+            onClick={() => onDelete(rowIndex, colIndex)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    onDelete(rowIndex, colIndex)
+                }
+            }}
+        >
+            {value}
+        </div>
+    )
 })
-
 export default GridItem
